@@ -109,7 +109,7 @@ final class UrlLauncher implements UrlLauncherApi {
   }
 
   @override
-  List<String> listUrlLaunchingApps(String url) {
+  public @NonNull List<String> listUrlLaunchingApps(String url) {
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(url));
 

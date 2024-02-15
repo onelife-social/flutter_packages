@@ -265,7 +265,7 @@ public class Messages {
     Boolean launchUrl(
         @NonNull String url,
         @NonNull Map<String, String> headers,
-        String forcePackageName);
+        @Nullable String forcePackageName);
 
     /**
      * Opens the URL in an in-app WebView, returning true if it opens successfully.
@@ -284,6 +284,7 @@ public class Messages {
      * Returns list of available packages that can run the provided url with its
      * schema
      */
+    @NonNull
     List<String> listUrlAvailablePackages(@NonNull String url);
 
     /** Closes the view opened by [openUrlInSafariViewController]. */
@@ -335,8 +336,9 @@ public class Messages {
                 ArrayList<Object> args = (ArrayList<Object>) message;
                 String urlArg = (String) args.get(0);
                 Map<String, String> headersArg = (Map<String, String>) args.get(1);
+                String forcePackageNameArg = (Map<String, String>) args.get(2);
                 try {
-                  Boolean output = api.launchUrl(urlArg, headersArg);
+                  Boolean output = api.launchUrl(urlArg, headersArg, forcePackageNameArg);
                   wrapped.add(0, output);
                 } catch (Throwable exception) {
                   ArrayList<Object> wrappedError = wrapError(exception);
