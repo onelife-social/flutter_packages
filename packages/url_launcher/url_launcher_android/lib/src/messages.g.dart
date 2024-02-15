@@ -157,8 +157,8 @@ class UrlLauncherApi {
     }
   }
 
-  /// Opens the URL externally, returning true if successful.
-  Future<List<String>> listUrlAvailablePackages(String arg_url) async {
+  /// Returns a list of String objects representing the names of the packages that can be opened by this URL
+  Future<List<Object?>> listUrlAvailablePackages(String arg_url) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.listUrlAvailablePackages', codec,
         binaryMessenger: _binaryMessenger);
@@ -180,7 +180,7 @@ class UrlLauncherApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (replyList[0] as List<String>?)!;
+      return (replyList[0] as List<Object?>?)!;
     }
   }
 

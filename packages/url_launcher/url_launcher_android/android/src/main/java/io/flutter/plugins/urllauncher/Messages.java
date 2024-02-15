@@ -336,7 +336,7 @@ public class Messages {
                 ArrayList<Object> args = (ArrayList<Object>) message;
                 String urlArg = (String) args.get(0);
                 Map<String, String> headersArg = (Map<String, String>) args.get(1);
-                String forcePackageNameArg = (Map<String, String>) args.get(2);
+                String forcePackageNameArg = (String) args.get(2);
                 try {
                   Boolean output = api.launchUrl(urlArg, headersArg, forcePackageNameArg);
                   wrapped.add(0, output);

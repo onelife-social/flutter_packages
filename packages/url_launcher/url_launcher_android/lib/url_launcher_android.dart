@@ -186,7 +186,7 @@ class UrlLauncherAndroid extends UrlLauncherPlatform {
   }
 
   /// Returns a list of the names of the packages that can run the given URL
-  Future<List<String>> listUrlAvailablePackages(String url) async {
+  Future<List<Object?>> listUrlAvailablePackages(String url) async {
     return _hostApi.listUrlAvailablePackages(url);
   }
 
