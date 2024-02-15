@@ -9,6 +9,8 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Browser;
@@ -21,7 +23,10 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import io.flutter.plugins.urllauncher.Messages.BrowserOptions;
 import io.flutter.plugins.urllauncher.Messages.UrlLauncherApi;
 import io.flutter.plugins.urllauncher.Messages.WebViewOptions;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -41,7 +46,8 @@ final class UrlLauncher implements UrlLauncherApi {
   private @Nullable Activity activity;
 
   /**
-   * Creates an instance that uses {@code intentResolver} to look up the handler for intents. This
+   * Creates an instance that uses {@code intentResolver} to look up the handler
+   * for intents. This
    * is to allow injecting an alternate resolver for unit testing.
    */
   @VisibleForTesting
@@ -80,14 +86,19 @@ final class UrlLauncher implements UrlLauncherApi {
   }
 
   @Override
-  public @NonNull Boolean launchUrl(@NonNull String url, @NonNull Map<String, String> headers) {
+  public @NonNull Boolean launchUrl(@NonNull String url, @NonNull Map<String, String> headers,
+      String forcePackageName) {
     ensureActivity();
     assert activity != null;
 
-    Intent launchIntent =
-        new Intent(Intent.ACTION_VIEW)
-            .setData(Uri.parse(url))
-            .putExtra(Browser.EXTRA_HEADERS, extractBundle(headers));
+    Intent launchIntent = new Intent(Intent.ACTION_VIEW)
+        .setData(Uri.parse(url))
+        .putExtra(Browser.EXTRA_HEADERS, extractBundle(headers));
+
+    if (forcePackageName != null) {
+      launchIntent.setPackage(forcePackageName);
+    }
+
     try {
       activity.startActivity(launchIntent);
     } catch (ActivityNotFoundException e) {
@@ -95,6 +106,29 @@ final class UrlLauncher implements UrlLauncherApi {
     }
 
     return true;
+  }
+
+  @override
+  List<String> listUrlLaunchingApps(String url) {
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    intent.setData(Uri.parse(url));
+
+    PackageManager packageManager = applicationContext.getPackageManager();
+    List<ResolveInfo> activities;
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+      activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL);
+    } else {
+      activities = packageManager.queryIntentActivities(intent, 0);
+    }
+
+    List<String> packageNames = new ArrayList<>();
+
+    for (ResolveInfo activity : activities) {
+      String packageName = activity.activityInfo.packageName;
+      packageNames.add(packageName);
+    }
+
+    return packageNames;
   }
 
   @Override
@@ -108,7 +142,8 @@ final class UrlLauncher implements UrlLauncherApi {
 
     Bundle headersBundle = extractBundle(webViewOptions.getHeaders());
 
-    // Try to launch using Custom Tabs if they have the necessary functionality, unless the caller
+    // Try to launch using Custom Tabs if they have the necessary functionality,
+    // unless the caller
     // specifically requested a web view.
     if (allowCustomTab && !containsRestrictedHeader(webViewOptions.getHeaders())) {
       Uri uri = Uri.parse(url);
@@ -118,13 +153,12 @@ final class UrlLauncher implements UrlLauncherApi {
     }
 
     // Fall back to a web view if necessary.
-    Intent launchIntent =
-        WebViewActivity.createIntent(
-            activity,
-            url,
-            webViewOptions.getEnableJavaScript(),
-            webViewOptions.getEnableDomStorage(),
-            headersBundle);
+    Intent launchIntent = WebViewActivity.createIntent(
+        activity,
+        url,
+        webViewOptions.getEnableJavaScript(),
+        webViewOptions.getEnableDomStorage(),
+        headersBundle);
     try {
       activity.startActivity(launchIntent);
     } catch (ActivityNotFoundException e) {
@@ -149,8 +183,7 @@ final class UrlLauncher implements UrlLauncherApi {
       @NonNull Uri uri,
       @NonNull Bundle headersBundle,
       @NonNull BrowserOptions options) {
-    CustomTabsIntent customTabsIntent =
-        new CustomTabsIntent.Builder().setShowTitle(options.getShowTitle()).build();
+    CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().setShowTitle(options.getShowTitle()).build();
     customTabsIntent.intent.putExtra(Browser.EXTRA_HEADERS, headersBundle);
 
     try {
@@ -162,7 +195,7 @@ final class UrlLauncher implements UrlLauncherApi {
   }
 
   // Checks if headers contains a CORS restricted header.
-  //  https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header
+  // https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header
   private static boolean containsRestrictedHeader(Map<String, String> headersMap) {
     for (String key : headersMap.keySet()) {
       switch (key.toLowerCase(Locale.US)) {

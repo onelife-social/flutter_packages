@@ -112,8 +112,7 @@ class UrlLauncherAndroid extends UrlLauncherPlatform {
         ),
       );
     } else {
-      succeeded =
-          await _hostApi.launchUrl(url, options.webViewConfiguration.headers);
+      succeeded = await _hostApi.launchUrl(url, options.webViewConfiguration.headers);
     }
 
     // TODO(stuartmorgan): Remove this special handling as part of a
@@ -121,11 +120,74 @@ class UrlLauncherAndroid extends UrlLauncherPlatform {
     // current behavior is backwards compatible with the previous Java error.
     if (!succeeded) {
       throw PlatformException(
-          code: 'ACTIVITY_NOT_FOUND',
-          message: 'No Activity found to handle intent { $url }');
+          code: 'ACTIVITY_NOT_FOUND', message: 'No Activity found to handle intent { $url }');
     }
 
     return succeeded;
+  }
+
+  /// Forces launch url with a specific package
+  Future<bool> launchUrlForcePackage(
+    String url,
+    LaunchOptions options,
+    String? forcePackageName,
+  ) async {
+    final bool inApp;
+    switch (options.mode) {
+      case PreferredLaunchMode.inAppWebView:
+      case PreferredLaunchMode.inAppBrowserView:
+        inApp = true;
+      case PreferredLaunchMode.externalApplication:
+      case PreferredLaunchMode.externalNonBrowserApplication:
+        // TODO(stuartmorgan): Add full support for
+        // externalNonBrowsingApplication; see
+        // https://github.com/flutter/flutter/issues/66721.
+        // Currently it's treated the same as externalApplication.
+        inApp = false;
+      case PreferredLaunchMode.platformDefault:
+      // Intentionally treat any new values as platformDefault; see comment in
+      // supportsMode.
+      // ignore: no_default_cases
+      default:
+        // By default, open web URLs in the application.
+        inApp = url.startsWith('http:') || url.startsWith('https:');
+        break;
+    }
+
+    final bool succeeded;
+    if (inApp) {
+      succeeded = await _hostApi.openUrlInApp(
+        url,
+        // Prefer custom tabs unless a webview was specifically requested.
+        options.mode != PreferredLaunchMode.inAppWebView,
+        WebViewOptions(
+          enableJavaScript: options.webViewConfiguration.enableJavaScript,
+          enableDomStorage: options.webViewConfiguration.enableDomStorage,
+          headers: options.webViewConfiguration.headers,
+        ),
+        BrowserOptions(
+          showTitle: options.browserConfiguration.showTitle,
+        ),
+      );
+    } else {
+      succeeded =
+          await _hostApi.launchUrl(url, options.webViewConfiguration.headers, forcePackageName);
+    }
+
+    // TODO(stuartmorgan): Remove this special handling as part of a
+    // breaking change to rework failure handling across all platform. The
+    // current behavior is backwards compatible with the previous Java error.
+    if (!succeeded) {
+      throw PlatformException(
+          code: 'ACTIVITY_NOT_FOUND', message: 'No Activity found to handle intent { $url }');
+    }
+
+    return succeeded;
+  }
+
+  /// Returns a list of the names of the packages that can run the given URL
+  Future<List<String>> listUrlAvailablePackages(String url) async {
+    return _hostApi.listUrlAvailablePackages(url);
   }
 
   @override

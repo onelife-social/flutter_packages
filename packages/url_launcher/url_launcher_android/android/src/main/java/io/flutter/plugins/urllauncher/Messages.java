@@ -13,16 +13,23 @@ import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MessageCodec;
 import io.flutter.plugin.common.StandardMessageCodec;
+import io.flutter.plugins.urllauncher.Messages.BrowserOptions;
+import io.flutter.plugins.urllauncher.Messages.WebViewOptions;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /** Generated class from Pigeon. */
-@SuppressWarnings({"unused", "unchecked", "CodeBlock2Expr", "RedundantSuppression", "serial"})
+@SuppressWarnings({ "unused", "unchecked", "CodeBlock2Expr", "RedundantSuppression", "serial" })
 public class Messages {
 
-  /** Error class for passing custom error details to Flutter via a thrown PlatformException. */
+  /**
+   * Error class for passing custom error details to Flutter via a thrown
+   * PlatformException.
+   */
   public static class FlutterError extends RuntimeException {
 
     /** The error code. */
@@ -58,7 +65,8 @@ public class Messages {
   /**
    * Configuration options for an in-app WebView.
    *
-   * <p>Generated class from Pigeon that represents data sent in messages.
+   * <p>
+   * Generated class from Pigeon that represents data sent in messages.
    */
   public static final class WebViewOptions {
     private @NonNull Boolean enableJavaScript;
@@ -101,7 +109,8 @@ public class Messages {
     }
 
     /** Constructor is non-public to enforce null safety; use Builder. */
-    WebViewOptions() {}
+    WebViewOptions() {
+    }
 
     public static final class Builder {
 
@@ -172,7 +181,8 @@ public class Messages {
     }
 
     /** Constructor is non-public to enforce null safety; use Builder. */
-    BrowserOptions() {}
+    BrowserOptions() {
+    }
 
     public static final class Builder {
 
@@ -208,7 +218,8 @@ public class Messages {
   private static class UrlLauncherApiCodec extends StandardMessageCodec {
     public static final UrlLauncherApiCodec INSTANCE = new UrlLauncherApiCodec();
 
-    private UrlLauncherApiCodec() {}
+    private UrlLauncherApiCodec() {
+    }
 
     @Override
     protected Object readValueOfType(byte type, @NonNull ByteBuffer buffer) {
@@ -236,15 +247,29 @@ public class Messages {
     }
   }
 
-  /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
+  /**
+   * Generated interface from Pigeon that represents a handler of messages from
+   * Flutter.
+   */
   public interface UrlLauncherApi {
+
     /** Returns true if the URL can definitely be launched. */
     @NonNull
     Boolean canLaunchUrl(@NonNull String url);
-    /** Opens the URL externally, returning true if successful. */
+
+    /**
+     * Opens the URL externally, returning true if successful.
+     * `forcePackageName` is the package name of the app to use to open the URL.
+     */
     @NonNull
-    Boolean launchUrl(@NonNull String url, @NonNull Map<String, String> headers);
-    /** Opens the URL in an in-app WebView, returning true if it opens successfully. */
+    Boolean launchUrl(
+        @NonNull String url,
+        @NonNull Map<String, String> headers,
+        String forcePackageName);
+
+    /**
+     * Opens the URL in an in-app WebView, returning true if it opens successfully.
+     */
     @NonNull
     Boolean openUrlInApp(
         @NonNull String url,
@@ -254,6 +279,13 @@ public class Messages {
 
     @NonNull
     Boolean supportsCustomTabs();
+
+    /**
+     * Returns list of available packages that can run the provided url with its
+     * schema
+     */
+    List<String> listUrlAvailablePackages(@NonNull String url);
+
     /** Closes the view opened by [openUrlInSafariViewController]. */
     void closeWebView();
 
@@ -261,14 +293,17 @@ public class Messages {
     static @NonNull MessageCodec<Object> getCodec() {
       return UrlLauncherApiCodec.INSTANCE;
     }
-    /** Sets up an instance of `UrlLauncherApi` to handle messages through the `binaryMessenger`. */
+
+    /**
+     * Sets up an instance of `UrlLauncherApi` to handle messages through the
+     * `binaryMessenger`.
+     */
     static void setup(@NonNull BinaryMessenger binaryMessenger, @Nullable UrlLauncherApi api) {
       {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(
-                binaryMessenger,
-                "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.canLaunchUrl",
-                getCodec());
+        BasicMessageChannel<Object> channel = new BasicMessageChannel<>(
+            binaryMessenger,
+            "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.canLaunchUrl",
+            getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -289,11 +324,10 @@ public class Messages {
         }
       }
       {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(
-                binaryMessenger,
-                "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.launchUrl",
-                getCodec());
+        BasicMessageChannel<Object> channel = new BasicMessageChannel<>(
+            binaryMessenger,
+            "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.launchUrl",
+            getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -315,11 +349,10 @@ public class Messages {
         }
       }
       {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(
-                binaryMessenger,
-                "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.openUrlInApp",
-                getCodec());
+        BasicMessageChannel<Object> channel = new BasicMessageChannel<>(
+            binaryMessenger,
+            "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.openUrlInApp",
+            getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -330,9 +363,8 @@ public class Messages {
                 WebViewOptions webViewOptionsArg = (WebViewOptions) args.get(2);
                 BrowserOptions browserOptionsArg = (BrowserOptions) args.get(3);
                 try {
-                  Boolean output =
-                      api.openUrlInApp(
-                          urlArg, allowCustomTabArg, webViewOptionsArg, browserOptionsArg);
+                  Boolean output = api.openUrlInApp(
+                      urlArg, allowCustomTabArg, webViewOptionsArg, browserOptionsArg);
                   wrapped.add(0, output);
                 } catch (Throwable exception) {
                   ArrayList<Object> wrappedError = wrapError(exception);
@@ -345,11 +377,10 @@ public class Messages {
         }
       }
       {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(
-                binaryMessenger,
-                "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.supportsCustomTabs",
-                getCodec());
+        BasicMessageChannel<Object> channel = new BasicMessageChannel<>(
+            binaryMessenger,
+            "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.supportsCustomTabs",
+            getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -368,11 +399,34 @@ public class Messages {
         }
       }
       {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(
-                binaryMessenger,
-                "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.closeWebView",
-                getCodec());
+        BasicMessageChannel<Object> channel = new BasicMessageChannel<>(
+            binaryMessenger,
+            "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.listUrlAvailablePackages",
+            getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String urlArg = (String) args.get(0);
+                try {
+                  List<String> output = api.listUrlAvailablePackages(urlArg);
+                  wrapped.add(0, output);
+                } catch (Throwable exception) {
+                  ArrayList<Object> wrappedError = wrapError(exception);
+                  wrapped = wrappedError;
+                }
+                reply.reply(wrapped);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel = new BasicMessageChannel<>(
+            binaryMessenger,
+            "dev.flutter.pigeon.url_launcher_android.UrlLauncherApi.closeWebView",
+            getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
