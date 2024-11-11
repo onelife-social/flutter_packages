@@ -39,8 +39,7 @@ class DomHelper {
 
     inputElement.onChange.first.then((_) {
       final List<XFile> files = Iterable<File>.generate(
-              inputElement.files!.length,
-              (int i) => inputElement.files!.item(i)!)
+              inputElement.files!.length, (int i) => inputElement.files!.item(i)!)
           .map(_convertFileToXFile)
           .toList();
       inputElement.remove();
@@ -66,7 +65,11 @@ class DomHelper {
     );
 
     // TODO(dit): Reimplement this with the showPicker() API, https://github.com/flutter/flutter/issues/130365
-    inputElement.click();
+    try {
+      inputElement.showPicker();
+    } catch (e) {
+      inputElement.click();
+    }
 
     return completer.future;
   }
