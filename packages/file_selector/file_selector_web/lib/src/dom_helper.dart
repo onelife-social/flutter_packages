@@ -31,8 +31,6 @@ class DomHelper {
         input ?? (document.createElement('input') as HTMLInputElement)
           ..type = 'file';
 
-    inputElement.setAttribute('capture', 'filesystem');
-
     _container.appendChild(
       inputElement
         ..accept = accept
