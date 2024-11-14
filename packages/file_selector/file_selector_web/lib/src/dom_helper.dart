@@ -29,8 +29,9 @@ class DomHelper {
     final Completer<List<XFile>> completer = Completer<List<XFile>>();
     final HTMLInputElement inputElement =
         input ?? (document.createElement('input') as HTMLInputElement)
-          ..type = 'file'
-          ..capture = 'filesystem';
+          ..type = 'file';
+
+    inputElement.setAttribute('capture', 'filesystem');
 
     _container.appendChild(
       inputElement
