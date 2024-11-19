@@ -66,10 +66,8 @@ class DomHelper {
 
     // TODO(dit): Reimplement this with the showPicker() API, https://github.com/flutter/flutter/issues/130365
     try {
-      print('inputElement.showPicker()');
       inputElement.showPicker();
     } catch (e) {
-      print('inputElement.click');
       inputElement.click();
     }
 
